@@ -1,8 +1,5 @@
-# json.py
-
 import json
 
-# Load sample-data.json
 with open("sample-data.json") as f:
     data = json.load(f)
 
