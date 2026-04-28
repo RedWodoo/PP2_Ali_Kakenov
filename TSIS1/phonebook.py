@@ -12,6 +12,13 @@ import os
 from datetime import datetime
 from connect import get_connection
 
+# папка этого скрипта — все файлы ищем относительно неё
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+def _path(filename):
+    """Возвращает абсолютный путь к файлу рядом с этим скриптом."""
+    return os.path.join(BASE_DIR, filename)
+
 
 # ============================================================
 # ИНИЦИАЛИЗАЦИЯ БАЗЫ
@@ -31,8 +38,9 @@ def setup_database():
                 """)
                 # расширения схемы (группы, телефоны, новые столбцы)
                 for sql_file in ['schema.sql', 'functions.sql', 'procedures.sql']:
-                    if os.path.exists(sql_file):
-                        with open(sql_file, 'r', encoding='utf-8') as f:
+                    fpath = _path(sql_file)
+                    if os.path.exists(fpath):
+                        with open(fpath, 'r', encoding='utf-8') as f:
                             cur.execute(f.read())
         print("--- [OK] Database initialized.")
     except Exception as e:
@@ -174,6 +182,7 @@ def paginated_browse(page_size=5):
 # ============================================================
 def export_to_json(filename='contacts_export.json'):
     """Экспортируем все контакты (с телефонами и группой) в JSON."""
+    filepath = _path(filename) if not os.path.isabs(filename) else filename
     data = []
     with get_connection() as conn:
         with conn.cursor() as cur:
@@ -199,18 +208,19 @@ def export_to_json(filename='contacts_export.json'):
                     "extra_phones": extra_phones,
                 })
 
-    with open(filename, 'w', encoding='utf-8') as f:
+    with open(filepath, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
-    print(f"--- [OK] Exported {len(data)} contacts to {filename}")
+    print(f"--- [OK] Exported {len(data)} contacts to {filepath}")
 
 
 def import_from_json(filename='contacts_export.json'):
     """Импортируем контакты из JSON. При дубликате спрашиваем: пропустить или перезаписать."""
-    if not os.path.exists(filename):
-        print(f"--- [ERROR] File {filename} not found!")
+    filepath = _path(filename) if not os.path.isabs(filename) else filename
+    if not os.path.exists(filepath):
+        print(f"--- [ERROR] File {filepath} not found!")
         return
 
-    with open(filename, 'r', encoding='utf-8') as f:
+    with open(filepath, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
     with get_connection() as conn:
@@ -260,6 +270,7 @@ def import_from_json(filename='contacts_export.json'):
 
 def import_from_csv(filepath='contacts.csv'):
     """Расширенный CSV-импорт с поддержкой новых полей: email, birthday, group, phone_type."""
+    filepath = _path(filepath) if not os.path.isabs(filepath) else filepath
     if not os.path.exists(filepath):
         print(f"--- [ERROR] File {filepath} not found!")
         return
