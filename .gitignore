@@ -1,0 +1,36 @@
+# === БЕЗОПАСНОСТЬ: файлы с паролями и конфигами БД ===
+database.ini
+*.ini
+
+# === PYTHON ===
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+.venv/
+venv/
+env/
+
+# === RUNTIME / GENERATED DATA ===
+# Эти файлы создаются во время работы программ
+contacts_export.json
+leaderboard.json
+settings.json
+canvas_*.png
+
+# === IDE ===
+.vscode/
+.idea/
+*.code-workspace
+
+# === OS ===
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# === ПЛАН (не пушить) ===
+TSIS+practice11 plan/
